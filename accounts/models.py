@@ -22,7 +22,8 @@ class Profile(models.Model):
     adress=models.CharField(max_length=100)
     Token=models.CharField(max_length=500,blank=True, null=True)
     join_date=models.DateTimeField(verbose_name=_("Created At"), default=datetime.now)
-    
+    is_voluteer = models.BooleanField(default=False)
+
     def save(self ,*args, **kwargs):
         if not self.slug:
             self.slug=slugify(self.user.username)
@@ -42,6 +43,10 @@ class Profile(models.Model):
         if kwargs['created']:
             user_profile=Profile.objects.create(user=kwargs['instance'])    
     post_save.connect(create_profile , sender=User)
+
+    @property
+    def is_normal(self):
+        return not self.is_voluteer
 
 class Friend(models.Model):
     profile=models.OneToOneField(Profile, verbose_name=_("user"), on_delete=models.CASCADE,related_name='friend_profile')
