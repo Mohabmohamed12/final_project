@@ -25,12 +25,12 @@ urlpatterns = [
     # api
     # path('user/list',UserViewSet.as_view({'get': 'list'}))c,
     path('api/register',RegisterUserAPIView.as_view()),
-    path('api/login',LoginView.as_view(),name='login_api'),
+    path('api/login/',LoginView.as_view(),name='login_api'),
     path('api/profile/<slug:slug>',ProfileAPi.as_view()),
     path('api/profile/<slug:slug>/editprofile',ProfileAPIUpdate.as_view()),
     path('api/password_reset', password_reset.as_view(), name='password_reset'),
     path('api/password_reset_set/<uidb64>/<token>/', password_reset_set.as_view(), name='password_reset_set'),
-    
+    path("api/activate/", ActivateEmailView.as_view(), name="activate_account")    
     
     # path('user/list',PropertyAPiList.as_view(),name='PropertyAPiList'),
     
