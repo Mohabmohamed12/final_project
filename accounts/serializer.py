@@ -15,7 +15,7 @@ from project import settings
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = [ "phone", "image", "country",'adress',]
+        fields = [ "phone", "image", "country",'adress', "is_volunteer"]
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,9 +30,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
+    is_volunteer = serializers.BooleanField()
     class Meta:
         model = User
-        fields = ('email','first_name', 'last_name', 'password', 'password2',
+        fields = ('email','first_name', 'last_name', 'password', 'password2', "is_volunteer"
                 )
         extra_kwargs = {
         'first_name': {'required': True},
