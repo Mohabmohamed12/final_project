@@ -139,7 +139,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR / "Images",)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'mohabmohamed12123@gmail.com'
 DEFAULT_FROM_EMAIL = 'mohabmohamed12123@gmail.com'

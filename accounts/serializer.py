@@ -46,13 +46,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         email = validated_data['email']
         username = email.split('@')[0]
-        user = User.objects.create(
+        user = User(
         username=username,
         is_active=False,
         email=validated_data['email'],
         first_name=validated_data['first_name'],
         last_name=validated_data['last_name']
         )
+        is_volunteer = validated_data.get("is_volunteer", False)
+        setattr(user, "is_volunteer", is_volunteer)
         user.set_password(validated_data['password'])
         user.save()
         request = self.context.get('request')
@@ -85,3 +87,9 @@ class Emailreset_set(serializers.Serializer):
     passwordconfigration=serializers.CharField()
     class Meta:
         fields =('password','passwordconfigration',)
+
+class EmailVerificationSerializer(serializers.Serializer):
+
+    uuid = serializers.CharField()
+    token = serializers.CharField()
+

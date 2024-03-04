@@ -1,4 +1,6 @@
-from.serializer import UserSerializer
+from django.db.models.query import REPR_OUTPUT_SIZE
+from django.utils.text import wrap
+from.serializer import UserSerializer, EmailVerificationSerializer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -20,7 +22,7 @@ from django.core.mail import send_mail
 from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -46,7 +48,7 @@ class LoginView(APIView):
         if serializer.is_valid():
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
-            user = authenticate(request, email=email, password=password)
+            user = authenticate(request, username=email, password=password)
 
             if user is not None:
                 login(request, user)
@@ -156,3 +158,30 @@ class password_reset_set(generics.GenericAPIView):
                     return Response({'detail': 'password reset successfully !'}, status=status.HTTP_200_OK)
             else:
                 return Response({'detail': 'Invalid token ! try to send message to your mail again !!'}, status=status.HTTP_200_OK)
+
+
+
+class ActivateEmailView(generics.UpdateAPIView):
+    def get_serializer(self, *args, **kwargs):
+        return EmailVerificationSerializer(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = self.get_user(request.data.get("uuid"))
+        if user is not None:
+            if accout_actvation_token.check_token(user, request.data.get("token")):
+                user.is_active = True
+                user.save()
+                return Response({"message": "activated successfully"})
+        return Response({"message": "the uuid or the token are Invalid"}, status=status.HTTP_400_BAD_REQUEST)
+    def get_user(self, uuid64):
+        try:
+            uid = urlsafe_base64_decode(uuid64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        return user
+
+
+
