@@ -9,8 +9,6 @@ from django.utils.text import slugify
 from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
-
-
 class Profile(models.Model):
     user=models.OneToOneField(User, verbose_name=_("user"), on_delete=models.CASCADE)
     friend=models.ManyToManyField('Friend',related_name='user_friends')
@@ -22,7 +20,8 @@ class Profile(models.Model):
     adress=models.CharField(max_length=100)
     Token=models.CharField(max_length=500,blank=True, null=True)
     join_date=models.DateTimeField(verbose_name=_("Created At"), default=datetime.now)
-    
+    is_volunteer = models.BooleanField(default=False)
+
     def save(self ,*args, **kwargs):
         if not self.slug:
             self.slug=slugify(self.user.username)
@@ -38,10 +37,15 @@ class Profile(models.Model):
     def get_absolute_url(self):
         return reverse("accounts:Profile_detail", kwargs={"slug": self.slug})
 
-    def create_profile(sender ,*args, **kwargs):
+    def create_profile(sender, instance, *args, **kwargs):
         if kwargs['created']:
-            user_profile=Profile.objects.create(user=kwargs['instance'])    
+            is_volunteer = getattr(instance, "is_volunteer", False)
+            user_profile=Profile.objects.create(user=instance, is_volunteer=is_volunteer)    
     post_save.connect(create_profile , sender=User)
+    
+    @property
+    def is_normal(self):
+        return not self.is_volunteer
 
 class Friend(models.Model):
     profile=models.OneToOneField(Profile, verbose_name=_("user"), on_delete=models.CASCADE,related_name='friend_profile')
