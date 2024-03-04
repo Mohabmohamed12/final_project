@@ -64,13 +64,16 @@ def signup(request):
                     return render(request,'registration/login.html',context)
                 else:
                     username = email.split("@")[0]
-                    user = User.objects.create_user(
+                    is_volunteer = request.POST.get("is_volunteer")
+                    is_volunteer = True if is_volunteer else False
+                    user = User(
                     username=username,
                     first_name=first_name,
                     is_active=False,
                     email=email,
                     password=password
                     )
+                    setattr(user, "is_volunteer", is_volunteer)
                     user.save()
                     mailsubject='activate your account'
                     uid = urlsafe_base64_encode(force_bytes(user.pk))
